@@ -796,7 +796,7 @@ function bfs(maze , start, stop) {
                     if ( e.x == this.stop.x && e.y == this.stop.y ) {
                         //Encontrou o destino
                         this.found = true;
-                        console.log("Encontrou o destino.");
+                        //console.log("Encontrou o destino.");
                     }
                 }
             }
@@ -811,7 +811,7 @@ function bfs(maze , start, stop) {
             w = this.stop ;
             p = [];
             p.push(w);
-            console.log( "Começar a descer a ladeira. Stop na altura " +  this.dmap[w.x][w.y] );
+            //console.log( "Começar a descer a ladeira. Stop na altura " +  this.dmap[w.x][w.y] );
             while ( !((w.x == this.start.x) && (w.y == this.start.y)) ) {
                 v = w.getLinkedNeighbors();
                 for (const e of v)  {
@@ -832,3 +832,145 @@ function bfs(maze , start, stop) {
     while(!this.dig(1));
     return this.path.slice();
 }//fim da função bfs
+
+
+class PedometerStats {
+    constructor (maze ) {
+        this.maze = maze;
+        this.start = this.maze.getCell( Math.floor( prng()*this.maze.width) , Math.floor( prng()*this.maze.height) );
+        this.stop = this.maze.getCell( Math.floor( prng()*this.maze.width) , Math.floor( prng()*this.maze.height) );
+        this.live = [];
+        this.dmap = [];
+        this.steps = 0;
+        this.done = false;
+        this.found = false;
+        this.path = [];
+        this.explored = false;
+        this.setup();
+    }
+
+    setup() {
+        let i, j;
+        let hei = [];
+        for ( i = 0 ; i < this.maze.height ; i ++ ){
+          hei.push( this.maze.width*this.maze.height );
+        }
+        for ( j = 0 ; j < this.maze.width ; j ++ ){
+          this.dmap.push ( hei.slice() );
+        }
+
+        this.maze.setVisited( false );
+        this.start.setVisited( true );
+        this.live.push(this.start);
+        this.done = false;
+        this.found = false;
+        this.path = [];
+        this.explored = false;
+    }// fim do setup
+
+    reset() {
+        this.live = [];
+        this.steps = 0;
+        this.setup();
+    }
+
+    dig(steps=1){
+        let i = 0;
+        while ( !this.done && (i < steps) ) {
+            this.oneStep();
+            i++;
+        }
+        return this.done ;
+    } //fim de dig();
+
+    oneStep() {
+        let l, n , v, w, p, i;
+        n = [];
+        
+        if ( this.live.length > 0 && !this.explored ) {
+            this.steps++;
+            for( l = 0; l < this.live.length ; l ++) {
+                this.live[l].setVisited(true);
+                v = this.live[l].getLinkedUnvisitedNeighbors();
+
+                for (const e of v) {
+                    n.push( e );
+                    this.dmap[e.x][e.y] = this.steps;
+                    this.stop = e ; 
+                }
+            }
+
+            this.live = n;
+        }
+        else {
+            //Acabou a exploração        
+            this.explored = true;
+        }
+    }// fim de oneStep
+
+    getFartestCell( initCell ){
+        let next , vizinhos, lastcell , live, steps;
+        next = [];
+        live = [];
+        steps = 0;
+        lastcell = this.maze.getCell( Math.floor( this.maze.width/2) , Math.floor( this.maze.height/2) );
+
+        this.maze.setVisited( false );
+        live.push( initCell);
+        this.dmap[initCell.x][initCell.y] = steps;
+        initCell.setVisited( true );
+
+        while ( live.length > 0 ) {
+            steps++;
+            next = [];
+
+            for( const cel of live ) {
+                cel.setVisited(true);
+                vizinhos = cel.getLinkedUnvisitedNeighbors();
+
+                for (const viz of vizinhos) {
+                    next.push( viz );
+                    this.dmap[viz.x][viz.y] = steps;
+                    lastcell = viz;
+                }
+            }
+
+            live = next;
+        }
+        return lastcell;
+    }//fim de getFartestCell;
+
+    getPathUp( target ) {
+        let w = target ;
+        let p = [];
+        let v;
+        p.push(w);
+        //console.log( "Começar a descer a ladeira. Stop na altura " +  this.dmap[w.x][w.y] );
+        while ( this.dmap[w.x][w.y] != 0 ) {
+            v = w.getLinkedNeighbors();
+            for (const e of v)  {
+                if ( this.dmap[e.x][e.y] < this.dmap[w.x][w.y] ){
+                    p.push(e);
+                    w = e;
+                    break;
+                }
+            }
+        }
+        p.push(w); // Adiciona celula com dmap 0;
+        // desceu a ladeira
+        p.reverse(); // Para que o caminho suba a ladeira
+        return p.slice();
+    }// fim de getPathUp
+
+    getTheBigPath(){
+        let pbegin = this.getFartestCell( this.maze.getCell(0,0) );
+        let pend = this.getFartestCell( pbegin );
+        let path = this.getPathUp( pend );
+        let msg  = "Tamanho do TheBigPath " + path.length ;
+        console.log(msg);
+        return path.slice();
+    }// fim de getTheBigPath
+    
+
+
+}//fim de PedometerAndAnalise

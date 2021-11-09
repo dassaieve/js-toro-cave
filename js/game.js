@@ -18,18 +18,21 @@ let b = new MazeBackTrackShortCorridorAlgorithm( a );
 
 while (!b.dig(1));
 
-let cpath = bfs( a, a.getCell(8,10) , a.getCell(6,39) );
-//let c = new Bfs( a, a.getCell(8,10) , a.getCell(43,17) );
+let apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
+let bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
+let cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
 
-let c = new BfsAnimated( a, a.getCell(10,21) , a.getCell(50,30) );
+let d = new PedometerStats( a );
+
+let bigpath = d.getTheBigPath();
+
+let c = new BfsAnimated( a, bigpath[0] , bigpath[bigpath.length -1 ] );
 
 let v = new MazeVisualizer2x2(a);
 draw();
 
 function explore() {
   if (!c.done){
-
-
   // drawing code
   if ( c.dig(1) ) { 
     //c.reset();
@@ -37,21 +40,18 @@ function explore() {
   } else {
     //terminal.value += "b";
   }
-
   draw();
-
   } else {
     ligardesligar() ;
-
   }
-
 }
 
 function draw() {
   v.draw(ctx);
-  v.drawRoutePath( ctx , cpath , 'LightSalmon');
-  //v.drawRoute( ctx , b.pilha );
-  //v.drawRoutePath( ctx , b.pilha );
+  v.drawRoutePath( ctx , apath , 'LightSalmon');
+  v.drawRoutePath( ctx , bpath , 'GreenYellow');
+  v.drawRoutePath( ctx , cpath , 'CornflowerBlue');
+  v.drawRoutePath( ctx , bigpath , 'Tomato');
   let vb = a.getVisitedBorder();
   v.drawCenter( ctx , vb , 'yellow');
   v.drawCenter( ctx , c.live , 'orange' );
@@ -62,10 +62,6 @@ function draw() {
   v.drawRoutePath( ctx , c.path , 'red');
 }
 
-
-
-
-
 function ligardesligar() {
   if ( animar ) { animar = false ; clearInterval(animID)  ; animID = null; console.log("Desliga Interval");}
   else { animID = setInterval(explore, Math.floor(1000/100) ) ; animar = true;console.log("Liga Interval"); }
@@ -74,7 +70,7 @@ function ligardesligar() {
 document.getElementById("step").onclick = explore;
 document.getElementById("setstart").onclick = setstart;
 document.getElementById("setstop").addEventListener("click", setstop);
-document.getElementById("newmaze").addEventListener("click", newmaze);
+document.getElementById("newmaze").onclick = newmaze.bind(window);
 document.getElementById("onoff").onclick = ligardesligar;
 
 function setstart( event ) {
@@ -105,4 +101,22 @@ function setstoponclick( event ) {
   document.getElementById("tela").style.cursor="default" ;
   document.getElementById("tela").removeEventListener("click", setstartonclick);
   console.log("Set Stop OFF");
+}
+
+function newmaze(){
+ console.log(this);
+ b.reset();
+ while (!b.dig(1));
+ 
+ apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
+ bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
+ cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
+ bigpath = d.getTheBigPath();
+ c.start = bigpath[0];
+ c.stop = bigpath[bigpath.length -1 ];
+ c.reset();
+
+ draw();
+ 
+
 }
