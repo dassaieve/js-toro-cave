@@ -386,6 +386,26 @@ class MazeVisualizer2x2 {
             }
 
             if( Math.abs(x - lx) > 2*p || Math.abs(y - ly) > 2*p ) {
+
+                if (lx == 0 && lx != x) {
+                    ctx.lineTo( 2,y+p+2);
+                }
+
+                if (lx == (c.maze.width-1)*t*p  && lx!= x  ) {
+                    ctx.moveTo( 2,y+p+2);
+                    ctx.lineTo( 2,y+p+2);
+                }
+
+                if (ly == 0 && ly != y) {
+                    ctx.lineTo( x+p+2, 2);
+                }
+
+                if (ly == (c.maze.height-1)*t*p  && ly!= y  ) {
+                    ctx.moveTo( x+p+2,2);
+                    ctx.lineTo( x+p+2,2);
+                }
+
+
                 ctx.moveTo(x+p+2,y+p+2);
             }
 

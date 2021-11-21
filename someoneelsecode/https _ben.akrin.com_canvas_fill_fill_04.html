@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width"><title>https://ben.akrin.com/canvas_fill/fill_04.html</title><link rel="stylesheet" type="text/css" href="resource://content-accessible/viewsource.css"></head><body id="viewsource" class="highlight" style="tab-size: 4"><pre id="line1"><span></span><span class="error" title="Tag de início encontrada sem encontrar um doctype primeiro. Esperado “&lt;!DOCTYPE html&gt;”.">&lt;<span class="start-tag">html</span>&gt;</span><span>
+<span id="line2"></span>    </span><span>&lt;<span class="start-tag">head</span>&gt;</span><span>
+<span id="line3"></span>        </span><span>&lt;<span class="start-tag">script</span>&gt;</span><span>
+<span id="line4"></span>            var the_canvas ;
+<span id="line5"></span>            var the_canvas_context ;
+<span id="line6"></span>
+<span id="line7"></span>            function flood_fill( x, y, color ) {
+<span id="line8"></span>                pixel_stack = [{x:x, y:y}] ;
+<span id="line9"></span>                pixels = the_canvas_context.getImageData( 0, 0, the_canvas.width, the_canvas.height ) ;
+<span id="line10"></span>                var linear_cords = ( y * the_canvas.width + x ) * 4 ;
+<span id="line11"></span>                original_color = {r:pixels.data[linear_cords],
+<span id="line12"></span>                                  g:pixels.data[linear_cords+1],
+<span id="line13"></span>                                  b:pixels.data[linear_cords+2],
+<span id="line14"></span>                                  a:pixels.data[linear_cords+3]} ;
+<span id="line15"></span>
+<span id="line16"></span>                while( pixel_stack.length&gt;0 ) {
+<span id="line17"></span>                    new_pixel = pixel_stack.shift() ;
+<span id="line18"></span>                    x = new_pixel.x ;
+<span id="line19"></span>                    y = new_pixel.y ;
+<span id="line20"></span>
+<span id="line21"></span>                    //console.log( x + ", " + y ) ;
+<span id="line22"></span>              
+<span id="line23"></span>                    linear_cords = ( y * the_canvas.width + x ) * 4 ;
+<span id="line24"></span>                    while( y--&gt;=0 &amp;&amp;
+<span id="line25"></span>                           (pixels.data[linear_cords]==original_color.r &amp;&amp;
+<span id="line26"></span>                            pixels.data[linear_cords+1]==original_color.g &amp;&amp;
+<span id="line27"></span>                            pixels.data[linear_cords+2]==original_color.b &amp;&amp;
+<span id="line28"></span>                            pixels.data[linear_cords+3]==original_color.a) ) {
+<span id="line29"></span>                        linear_cords -= the_canvas.width * 4 ;
+<span id="line30"></span>                    }
+<span id="line31"></span>                    linear_cords += the_canvas.width * 4 ;
+<span id="line32"></span>                    y++ ;
+<span id="line33"></span>
+<span id="line34"></span>                    var reached_left = false ;
+<span id="line35"></span>                    var reached_right = false ;
+<span id="line36"></span>                    while( y++</span><span>&lt;t</span><span>he_canvas.height &amp;&amp;
+<span id="line37"></span>                           (pixels.data[linear_cords]==original_color.r &amp;&amp;
+<span id="line38"></span>                            pixels.data[linear_cords+1]==original_color.g &amp;&amp;
+<span id="line39"></span>                            pixels.data[linear_cords+2]==original_color.b &amp;&amp;
+<span id="line40"></span>                            pixels.data[linear_cords+3]==original_color.a) ) {
+<span id="line41"></span>                        pixels.data[linear_cords]   = color.r ;
+<span id="line42"></span>                        pixels.data[linear_cords+1] = color.g ;
+<span id="line43"></span>                        pixels.data[linear_cords+2] = color.b ;
+<span id="line44"></span>                        pixels.data[linear_cords+3] = color.a ;
+<span id="line45"></span>
+<span id="line46"></span>                        if( x&gt;0 ) {
+<span id="line47"></span>                            if( pixels.data[linear_cords-4]==original_color.r &amp;&amp;
+<span id="line48"></span>                                pixels.data[linear_cords-4+1]==original_color.g &amp;&amp;
+<span id="line49"></span>                                pixels.data[linear_cords-4+2]==original_color.b &amp;&amp;
+<span id="line50"></span>                                pixels.data[linear_cords-4+3]==original_color.a ) {
+<span id="line51"></span>                                if( !reached_left ) {
+<span id="line52"></span>                                    pixel_stack.push( {x:x-1, y:y} ) ;
+<span id="line53"></span>                                    reached_left = true ;
+<span id="line54"></span>                                }
+<span id="line55"></span>                            } else if( reached_left ) {
+<span id="line56"></span>                                reached_left = false ;
+<span id="line57"></span>                            }
+<span id="line58"></span>                        }
+<span id="line59"></span>                    
+<span id="line60"></span>                        if( x</span><span>&lt;t</span><span>he_canvas.width-1 ) {
+<span id="line61"></span>                            if( pixels.data[linear_cords+4]==original_color.r &amp;&amp;
+<span id="line62"></span>                                pixels.data[linear_cords+4+1]==original_color.g &amp;&amp;
+<span id="line63"></span>                                pixels.data[linear_cords+4+2]==original_color.b &amp;&amp;
+<span id="line64"></span>                                pixels.data[linear_cords+4+3]==original_color.a ) {
+<span id="line65"></span>                                if( !reached_right ) {
+<span id="line66"></span>                                    pixel_stack.push( {x:x+1,y:y} ) ;
+<span id="line67"></span>                                    reached_right = true ;
+<span id="line68"></span>                                }
+<span id="line69"></span>                            } else if( reached_right ) {
+<span id="line70"></span>                                reached_right = false ;
+<span id="line71"></span>                            }
+<span id="line72"></span>                        }
+<span id="line73"></span>                        
+<span id="line74"></span>                        linear_cords += the_canvas.width * 4 ;
+<span id="line75"></span>                    }
+<span id="line76"></span>                }
+<span id="line77"></span>                the_canvas_context.putImageData( pixels, 0, 0 ) ;
+<span id="line78"></span>            }
+<span id="line79"></span>
+<span id="line80"></span>            function is_in_pixel_stack( x, y, pixel_stack ) {
+<span id="line81"></span>                for( var i=0 ; i</span><span>&lt;p</span><span>ixel_stack.length ; i++ ) {
+<span id="line82"></span>                    if( pixel_stack[i].x==x &amp;&amp; pixel_stack[i].y==y ) {
+<span id="line83"></span>                        return true ;
+<span id="line84"></span>                    }
+<span id="line85"></span>                }
+<span id="line86"></span>                return false ;
+<span id="line87"></span>            }
+<span id="line88"></span>
+<span id="line89"></span>            function generate_random_color() {
+<span id="line90"></span>                var letters = '0123456789ABCDEF' ;
+<span id="line91"></span>                var color = '#' ;
+<span id="line92"></span>                for( var i=0; i</span><span>&lt;6</span><span>; i++ ) {
+<span id="line93"></span>                    color += letters[Math.floor(Math.random() * 16)] ;
+<span id="line94"></span>                }
+<span id="line95"></span>                return color ;
+<span id="line96"></span>            }
+<span id="line97"></span>
+<span id="line98"></span>            // adapted from https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+<span id="line99"></span>            function color_to_rgba( color ) {
+<span id="line100"></span>                if( color[0]=="#" ) { // hex notation
+<span id="line101"></span>                    color = color.replace( "#", "" ) ;
+<span id="line102"></span>                    var bigint = parseInt(color, 16);
+<span id="line103"></span>                    var r = (bigint &gt;&gt; 16) &amp; 255;
+<span id="line104"></span>                    var g = (bigint &gt;&gt; 8) &amp; 255;
+<span id="line105"></span>                    var b = bigint &amp; 255;
+<span id="line106"></span>                    return {r:r,
+<span id="line107"></span>                            g:g,
+<span id="line108"></span>                            b:b,
+<span id="line109"></span>                            a:255} ;
+<span id="line110"></span>                } else if( color.indexOf("rgba(")==0 ) { // already in rgba notation
+<span id="line111"></span>                    color = color.replace( "rgba(", "" ).replace( " ", "" ).replace( ")", "" ).split( "," ) ;
+<span id="line112"></span>                    return {r:color[0],
+<span id="line113"></span>                            g:color[1],
+<span id="line114"></span>                            b:color[2],
+<span id="line115"></span>                            a:color[3]*255} ;
+<span id="line116"></span>                } else {
+<span id="line117"></span>                    console.error( "warning: can't convert color to rgba: " + color ) ;
+<span id="line118"></span>                    return {r:0,
+<span id="line119"></span>                            g:0,
+<span id="line120"></span>                            b:0,
+<span id="line121"></span>                            a:0} ;
+<span id="line122"></span>                }
+<span id="line123"></span>            }
+<span id="line124"></span>
+<span id="line125"></span>            function body_loaded() {
+<span id="line126"></span>                the_canvas = document.getElementById( "the_canvas" ) ;
+<span id="line127"></span>                the_canvas_context = the_canvas.getContext( "2d" ) ;
+<span id="line128"></span>            }
+<span id="line129"></span>        </span><span>&lt;/<span class="end-tag">script</span>&gt;</span><span>
+<span id="line130"></span>    </span><span>&lt;/<span class="end-tag">head</span>&gt;</span><span>
+<span id="line131"></span>    </span><span>&lt;<span class="start-tag">body</span> <span class="attribute-name">onLoad</span>="<a class="attribute-value">body_loaded();</a>" <span class="attribute-name">style</span>="<a class="attribute-value">margin:0px; padding:0px; border:0px; overflow:hidden; background-color:black</a>"&gt;</span><span>
+<span id="line132"></span>        </span><span>&lt;<span class="start-tag">canvas</span> <span class="attribute-name">id</span>="<a class="attribute-value">the_canvas</a>" <span class="attribute-name">width</span>="<a class="attribute-value">200px</a>" <span class="attribute-name">height</span>="<a class="attribute-value">200px</a>" <span class="attribute-name">onClick</span>="<a class="attribute-value">flood_fill( event.x, event.y, color_to_rgba(generate_random_color()) ) ;</a>" <span class="attribute-name">style</span>="<a class="attribute-value">margin:0px; padding:0px; border:0px; background-color:white</a>"&gt;</span><span></span><span>&lt;/<span class="end-tag">canvas</span>&gt;</span><span>
+<span id="line133"></span>        </span><span>&lt;<span class="start-tag">div</span> <span class="attribute-name">style</span>="<a class="attribute-value">position:absolute; top:20px; left: 220px; color:white</a>"&gt;</span><span></span><span class="error" title="Caractere errado depois de “&lt;”. Causa provável: “&lt;” literal. Tente codificar como “&amp;lt;”.">&lt;=</span><span> the canvas is in the top left corner</span><span>&lt;/<span class="end-tag">div</span>&gt;</span><span>
+<span id="line134"></span>    </span><span>&lt;/<span class="end-tag">body</span>&gt;</span><span>
+<span id="line135"></span></span><span>&lt;/<span class="end-tag">html</span>&gt;</span><span></span></pre></body></html>

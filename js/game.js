@@ -3,8 +3,15 @@ let animar = false;
 let animID = false;
 
 var canvas = document.getElementById("tela");
+canvas.width = 480*4;
+canvas.height = 320*4;
+
+
+
+
+
 var ctx = canvas.getContext("2d");
-var terminal = document.getElementById("terminal")
+var terminal = document.getElementById("terminal");
 terminal.value = "a";
 
 let a = new ToroMaze();
@@ -18,9 +25,9 @@ let b = new MazeBackTrackShortCorridorAlgorithm( a );
 
 while (!b.dig(1));
 
-let apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
-let bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
-let cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
+//let apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
+//let bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
+//let cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
 
 let d = new PedometerStats( a );
 
@@ -48,10 +55,12 @@ function explore() {
 
 function draw() {
   v.draw(ctx);
-  v.drawRoutePath( ctx , apath , 'LightSalmon');
-  v.drawRoutePath( ctx , bpath , 'GreenYellow');
-  v.drawRoutePath( ctx , cpath , 'CornflowerBlue');
-  v.drawRoutePath( ctx , bigpath , 'Tomato');
+  //v.drawRoutePath( ctx , apath , 'LightSalmon');
+  //v.drawRoutePath( ctx , bpath , 'GreenYellow');
+  //v.drawRoutePath( ctx , cpath , 'CornflowerBlue');
+  //v.drawRoutePath( ctx , bigpath , 'Tomato');
+  //v.drawRoute( ctx , bigpath , 'Tomato');
+
   let vb = a.getVisitedBorder();
   v.drawCenter( ctx , vb , 'yellow');
   v.drawCenter( ctx , c.live , 'orange' );
@@ -60,6 +69,60 @@ function draw() {
   v.drawCenter( ctx , [c.start] , 'green');
   v.drawCenter( ctx , [c.stop] , 'red');
   v.drawRoutePath( ctx , c.path , 'red');
+
+  let wid = 480;
+  let hei = 320;
+  let imgData = ctx.getImageData(0, 0, 480, 320);
+  ctx.putImageData(imgData,   480, 0);
+  ctx.putImageData(imgData, 2*480, 0);
+  ctx.putImageData(imgData, 3*480, 0);
+
+  ctx.putImageData(imgData,     0, 320);
+  ctx.putImageData(imgData,   480, 320);
+  ctx.putImageData(imgData, 2*480, 320);
+  ctx.putImageData(imgData, 3*480, 320);
+
+  ctx.putImageData(imgData,     0, 2*320);
+  ctx.putImageData(imgData,   480, 2*320);
+  ctx.putImageData(imgData, 2*480, 2*320);
+  ctx.putImageData(imgData, 3*480, 2*320);
+  
+  ctx.putImageData(imgData,     0, 3*320);
+  ctx.putImageData(imgData,   480, 3*320);
+  ctx.putImageData(imgData, 2*480, 3*320);
+  ctx.putImageData(imgData, 3*480, 3*320);
+
+  //#800000, #ff00ff, #00ff00, #808000, #0000ff, #008080, 
+  //#ffff00, #000080, #00ffff, #800080, #ff0000, #008000
+
+  flood_fill( ctx ,   0+  0+4, 320+4, '#800000' );
+  flood_fill( ctx ,   0+120+4, 320+4, '#ff00ff' );
+  flood_fill( ctx ,   0+240+4, 320+4, '#00ff00' );
+  flood_fill( ctx ,   0+360+4, 320+4, '#808000' );
+  flood_fill( ctx , 480+  0+4, 320+4, '#0000ff' );
+  flood_fill( ctx , 480+120+4, 320+4, '#008080' );
+  flood_fill( ctx , 480+240+4, 320+4, '#ffff00' );
+  flood_fill( ctx , 480+360+4, 320+4, '#000080' );
+  flood_fill( ctx , 960+  0+4, 320+4, '#00ffff' );
+  flood_fill( ctx , 960+120+4, 320+4, '#800080' );
+  flood_fill( ctx , 960+240+4, 320+4, '#ff0000' );
+  flood_fill( ctx , 960+360+4, 320+4, '#008000' );
+
+  flood_fill( ctx ,   0+  0+4, 640+4, '#ffff00' );
+  flood_fill( ctx ,   0+120+4, 640+4, '#000080' );
+  flood_fill( ctx ,   0+240+4, 640+4, '#00ffff' );
+  flood_fill( ctx ,   0+360+4, 640+4, '#800080' );
+  flood_fill( ctx , 480+  0+4, 640+4, '#ff0000' );
+  flood_fill( ctx , 480+120+4, 640+4, '#008000' );
+  flood_fill( ctx , 480+240+4, 640+4, '#800000' );
+  flood_fill( ctx , 480+360+4, 640+4, '#ff00ff' );
+  flood_fill( ctx , 960+  0+4, 640+4, '#00ff00' );
+  flood_fill( ctx , 960+120+4, 640+4, '#808000' );
+  flood_fill( ctx , 960+240+4, 640+4, '#0000ff' );
+  flood_fill( ctx , 960+360+4, 640+4, '#008080' );
+
+  
+
 }
 
 function ligardesligar() {
@@ -104,7 +167,7 @@ function setstoponclick( event ) {
 }
 
 function newmaze(){
- console.log(this);
+ //console.log(this);
  b.reset();
  while (!b.dig(1));
  
