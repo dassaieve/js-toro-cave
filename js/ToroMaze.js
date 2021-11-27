@@ -269,6 +269,10 @@ class MazeCell { //GraphVertice
         return neighbors ;
     }//fim do     getLinkedUnvisitedNeighbors
 
+    getCellValue(){
+        return this.maze.cmap[this.x][this.y];
+    }
+
 }
 
 class MazeVisualizer2x2 {
@@ -894,40 +898,6 @@ class PedometerStats {
         this.setup();
     }
 
-    dig(steps=1){
-        let i = 0;
-        while ( !this.done && (i < steps) ) {
-            this.oneStep();
-            i++;
-        }
-        return this.done ;
-    } //fim de dig();
-
-    oneStep() {
-        let l, n , v, w, p, i;
-        n = [];
-        
-        if ( this.live.length > 0 && !this.explored ) {
-            this.steps++;
-            for( l = 0; l < this.live.length ; l ++) {
-                this.live[l].setVisited(true);
-                v = this.live[l].getLinkedUnvisitedNeighbors();
-
-                for (const e of v) {
-                    n.push( e );
-                    this.dmap[e.x][e.y] = this.steps;
-                    this.stop = e ; 
-                }
-            }
-
-            this.live = n;
-        }
-        else {
-            //Acabou a exploração        
-            this.explored = true;
-        }
-    }// fim de oneStep
-
     getFartestCell( initCell ){
         let next , vizinhos, lastcell , live, steps;
         next = [];
@@ -982,8 +952,8 @@ class PedometerStats {
         return p.slice();
     }// fim de getPathUp
 
-    getTheBigPath(){
-        let pbegin = this.getFartestCell( this.maze.getCell(0,0) );
+    getTheBigPath(x=0, y=0){
+        let pbegin = this.getFartestCell( this.maze.getCell(x,y) );
         let pend = this.getFartestCell( pbegin );
         let path = this.getPathUp( pend );
         let msg  = "Tamanho do TheBigPath " + path.length ;
@@ -992,5 +962,103 @@ class PedometerStats {
     }// fim de getTheBigPath
     
 
-
 }//fim de PedometerAndAnalise
+
+
+function ToroMaze2Nodes( toromaze ){ // iteracao bfs não 
+    let from = [];
+    let next = [];
+    let nodes = new Map();
+    let getKeyCell = function ( cell ){return cell.x + "," + cell.y ;}
+    from.push(toromaze.getCell(0,0));
+    toromaze.setVisited( false );
+    while ( from.length > 0 ) {
+        next = [];
+        for( const cel of from ) {
+            cel.setVisited(true);
+            viznaovis = cel.getLinkedUnvisitedNeighbors();
+            vizinhos = cel.getLinkedNeighbors();
+            nodes.set( getKeyCell(cel) , {value: cel.getCellValue(), links: vizinhos.map( getKeyCell ) } );
+            for (const viz of viznaovis) { next.push( viz ); }
+        }
+        from = next;        
+    } // live.length > 0
+    return nodes;
+}// fim de ToroMaze2GraphNodes
+
+function ToroMaze2Maze( toromaze ){
+    let maxx = 0;
+    let minx = 0;
+    let maxy = 0;
+    let miny = 0;
+
+    let xmap = [];
+    let ymap = [];
+
+    let hei = [];
+    for ( i = 0 ; i < toromaze.height ; i ++ ){
+        hei.push( 0 );
+    }
+    for ( j = 0 ; j < toromaze.width ; j ++ ){
+        xmap.push ( hei.slice() );
+        ymap.push ( hei.slice() );
+    }
+
+    let mapxyMaze = function ( cell1, cell2 ) {
+        let fx = xmap[cell1.x][cell1.y];
+        let fy = ymap[cell1.x][cell1.y];
+        if ( cell1.getCellup().y == cell2.y )    { fy-- };
+        if ( cell1.getCellright().x == cell2.x ) { fx++ };
+        if ( cell1.getCelldown().y == cell2.y )  { fy++ };
+        if ( cell1.getCellleft().x == cell2.x )  { fx-- };
+        xmap[cell2.x][cell2.y] = fx;
+        ymap[cell2.x][cell2.y] = fy;
+
+        maxx = maxx > fx ? maxx : fx ;
+        maxy = maxy > fy ? maxy : fy ;
+        minx = minx < fx ? minx : fx ;
+        miny = miny < fy ? miny : fy ;
+    }
+
+    let getKey = function ( cell ){return xmap[cell.x][cell.y] + "," + ymap[cell.x][cell.y] ;}
+
+    let from = [];
+    let next = [];
+    let nodes = new Map();
+    from.push(toromaze.getCell(0,0));
+    toromaze.setVisited( false );
+    while ( from.length > 0 ) {
+        next = [];
+        //console.log("from.length: " + from.length);
+        for( const cel of from ) {
+            cel.setVisited(true);
+            viznaovis = cel.getLinkedUnvisitedNeighbors();
+            for (const viz of viznaovis) { 
+                next.push( viz ); 
+                mapxyMaze( cel , viz );
+            }
+            vizinhos = cel.getLinkedNeighbors();
+            nodes.set( getKey(cel) , {value: cel.getCellValue(), links: vizinhos.map( getKey ), x: xmap[cel.x][cel.y] , y: ymap[cel.x][cel.y] } );
+        }
+        from = next;        
+    } // live.length > 0
+
+    let mm = new ToroMaze();
+    mm.restart( maxx-minx+1 , maxy-miny+1 );
+    for ( const nod of nodes ) {
+        //console.log(nod);
+        
+        mm.cmap[ nod[1].x -minx][ nod[1].y -miny ] = nod[1].value ;
+    }
+
+    let msgcon =    " maxx: " + maxx +
+                    " minx: " + minx +
+                    " maxy: " + maxy +
+                    " miny: " + miny +
+                    " maxx-minx: " + (maxx-minx) + 
+                    " maxy-miny: " + (maxy-miny) ;
+    console.log(msgcon);
+
+    //return [nodes,xmap,ymap,maxx,minx,maxy,miny];
+    return mm ;
+} // fim de  ToroMaze2Maze{
