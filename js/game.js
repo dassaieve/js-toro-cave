@@ -24,10 +24,6 @@ let b = new MazeBackTrackShortCorridorAlgorithm( a );
 
 while (!b.dig(1));
 
-//let apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
-//let bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
-//let cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
-
 let d = new PedometerStats( a );
 
 let bigpath = d.getTheBigPath();
@@ -54,9 +50,6 @@ function explore() {
 
 function draw() {
   v.draw(ctx);
-  //v.drawRoutePath( ctx , apath , 'LightSalmon');
-  //v.drawRoutePath( ctx , bpath , 'GreenYellow');
-  //v.drawRoutePath( ctx , cpath , 'CornflowerBlue');
   v.drawRoutePath( ctx , bigpath , 'Tomato');
   //v.drawRoute( ctx , bigpath , 'Tomato');
 
@@ -162,9 +155,6 @@ function newmaze(){
  b.reset();
  while (!b.dig(1));
  
- apath = bfs( a, a.getCell(14,29) , a.getCell(29,9) );
- bpath = bfs( a, a.getCell(29,9) , a.getCell(44,29) );
- cpath = bfs( a, a.getCell(44,29) , a.getCell(14,29) );
  bigpath = d.getTheBigPath();
  c.start = bigpath[0];
  c.stop = bigpath[bigpath.length -1 ];
@@ -187,6 +177,24 @@ function newmaze(){
  }
 
  vv.drawRoutePath( ctx2, TThebigpath , 'red');
+
+ let branchUp    = getBranch( TThebigpath[Math.floor(TThebigpath.length/2)] , 0 );
+ let branchRight = getBranch( TThebigpath[Math.floor(TThebigpath.length/2)] , 1 );
+ let branchDown  = getBranch( TThebigpath[Math.floor(TThebigpath.length/2)] , 2 );
+ let branchLeft  = getBranch( TThebigpath[Math.floor(TThebigpath.length/2)] , 3 );
+
+ let msg = "TThebigpath.branchUp.lenght=" + branchUp.length + "\n" +
+ "TThebigpath.branchRight.lenght=" + branchRight.length + "\n" +
+ "TThebigpath.branchDown.lenght=" + branchDown.length + "\n" +
+ "TThebigpath.branchLeft.lenght=" + branchLeft.length + "\n" 
+
+ console.log(msg);
+
+
+ vv.drawCenter( ctx2 , branchUp    , '#800000');
+ vv.drawCenter( ctx2 , branchRight , '#ff00ff');
+ vv.drawCenter( ctx2 , branchDown  , '#00ff00');
+ vv.drawCenter( ctx2 , branchLeft  , '#808000');
  
 
  draw();

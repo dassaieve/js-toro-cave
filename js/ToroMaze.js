@@ -462,17 +462,22 @@ class MazeAlgorithm {
     oneStep() {
         if (this.y < (this.maze.height-0)) {
             if (this.x < (this.maze.width-0)){
-                switch ( Math.floor( prng()*10 ) ) {
-                    case 0: this.maze.getCell(this.x,this.y).unirCellup();    break;
+                switch ( Math.floor( prng()*15 ) ) {
+                    case 0: this.maze.getCell(this.x,this.y).unirCellup();    //break;
                     case 1: this.maze.getCell(this.x,this.y).unirCellright(); break;
-                    case 2: this.maze.getCell(this.x,this.y).unirCelldown();  break;
+                    case 2: this.maze.getCell(this.x,this.y).unirCelldown();  //break;
                     case 3: this.maze.getCell(this.x,this.y).unirCellleft();  break;
-                    case 4: break;
-                    case 5: break;
-                    case 6: this.maze.getCell(this.x,this.y).unirCellleft();  break;
+                    case 4: this.maze.getCell(this.x,this.y).unirCellup(); //break;
+                    case 5: this.maze.getCell(this.x,this.y).unirCelldown(); break;
+                    case 6: this.maze.getCell(this.x,this.y).unirCellleft();  //break;
                     case 7: this.maze.getCell(this.x,this.y).unirCelldown();  break;
-                    case 8: this.maze.getCell(this.x,this.y).unirCellright(); break;
+                    case 8: this.maze.getCell(this.x,this.y).unirCellright(); //break;
                     case 9: this.maze.getCell(this.x,this.y).unirCellup();    break;
+                    case 10: this.maze.getCell(this.x,this.y).unirCellright() ; this.maze.getCell(this.x,this.y).unirCellleft() ; break;
+                    case 11: this.maze.getCell(this.x,this.y).unirCellup();    //break;
+                    case 12: this.maze.getCell(this.x,this.y).unirCellleft();  break;
+                    case 13: this.maze.getCell(this.x,this.y).unirCelldown();  //break;
+                    case 14: this.maze.getCell(this.x,this.y).unirCellright(); break;
                     default: break;
                 }
                 this.x++;
@@ -853,7 +858,7 @@ function bfs(maze , start, stop) {
     }// fim de oneStep
 
     this.setup();
-    while(!this.dig(1));
+    //while(!this.dig(1));
     return this.path.slice();
 }//fim da função bfs
 
@@ -1025,7 +1030,11 @@ function ToroMaze2Maze( toromaze ){
     let from = [];
     let next = [];
     let nodes = new Map();
-    from.push(toromaze.getCell(0,0));
+    from.push(toromaze.getCell(
+        Math.floor(toromaze.width/2),
+        Math.floor(toromaze.height/2)
+    ));
+    //from.push(toromaze.getCell(0,0));
     toromaze.setVisited( false );
     while ( from.length > 0 ) {
         next = [];
@@ -1051,14 +1060,51 @@ function ToroMaze2Maze( toromaze ){
         mm.cmap[ nod[1].x -minx][ nod[1].y -miny ] = nod[1].value ;
     }
 
-    let msgcon =    " maxx: " + maxx +
-                    " minx: " + minx +
-                    " maxy: " + maxy +
-                    " miny: " + miny +
-                    " maxx-minx: " + (maxx-minx) + 
-                    " maxy-miny: " + (maxy-miny) ;
-    console.log(msgcon);
+    // let msgcon =    " maxx: " + maxx +
+    //                 " minx: " + minx +
+    //                 " maxy: " + maxy +
+    //                 " miny: " + miny +
+    //                 " maxx-minx: " + (maxx-minx) + 
+    //                 " maxy-miny: " + (maxy-miny) ;
+    // console.log(msgcon);
 
     //return [nodes,xmap,ymap,maxx,minx,maxy,miny];
     return mm ;
 } // fim de  ToroMaze2Maze{
+
+function getBranch( c1 , dir=0 ){
+
+    let getKey = function ( cell ){return cell.x + "," + cell.y ;}
+
+    let branch = new Map();
+    let from = [];
+    let next = [];
+
+    branch.set( getKey(c1) , c1 );
+    //branch.set( getKey(c1) , {value: c1.getCellValue(), x: c1.x , y: c1.y } );
+
+    switch (dir) {
+        case 0: if ( !c1.isWallup() )    { from.push( c1.getCellup()    ); } ; break;
+        case 1: if ( !c1.isWallright() ) { from.push( c1.getCellright() ); } ; break;
+        case 2: if ( !c1.isWalldown() )  { from.push( c1.getCelldown()  ); } ; break;
+        case 3: if ( !c1.isWallleft() )  { from.push( c1.getCellleft()  ); } ; break;
+        default: break;
+    }
+
+    while ( from.length > 0 ) {
+        next = [];
+        for( const cel of from ) {
+            vizinhos = cel.getLinkedNeighbors();
+            for (const viz of vizinhos) { 
+                if ( !branch.has( getKey( viz ) ) ) {
+                    next.push( viz );
+                } 
+            }                
+            branch.set( getKey(cel) , cel );
+            //branch.set( getKey(cel) , { x: cel.x , y: cel.y } );
+        }
+        from = next;
+    } // live.length > 0
+
+    return Array.from( branch.values() );
+}
